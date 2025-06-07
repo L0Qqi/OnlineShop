@@ -1,0 +1,41 @@
+﻿@model List<OnlineShop.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<h1>Корзина</h1>
+
+@if (Model.Count == 0)
+{
+    <p>Корзина пуста.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>Итого</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@(item.Price* item.Quantity)</td>
+                    <td>
+                        <a asp-action="Remove" asp-route-id="@item.ProductId" class="btn btn-danger btn-sm">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a asp-action="Clear" class="btn btn-warning">Очистить корзину</a>
+}
