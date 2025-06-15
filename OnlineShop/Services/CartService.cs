@@ -1,71 +1,86 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using OnlineShop.Data;
 using OnlineShop.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace OnlineShop.Services
 {
     public class CartService
     {
+        private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private const string CartKey = "Cart";
 
-        public CartService(IHttpContextAccessor httpContextAccessor)
+        public CartService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
         {
+            _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public List<CartItem> GetCart()
+        private string GetUserId()
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var cartJson = session.GetString(CartKey);
-            return string.IsNullOrEmpty(cartJson)
-                ? new List<CartItem>()
-                : JsonConvert.DeserializeObject<List<CartItem>>(cartJson);
+            return _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-        public void SaveCart(List<CartItem> cart)
+        public async Task<List<CartItem>> GetCartItemsAsync()
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            session.SetString(CartKey, JsonConvert.SerializeObject(cart));
+            var userId = GetUserId();
+            return await _context.CartItems
+                .Where(ci => ci.UserId == userId)
+                .ToListAsync();
         }
 
-        public void AddToCart(Product product)
+        public async Task AddToCartAsync(Product product)
         {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(i => i.ProductId == product.Id);
-            if (item != null)
+            var userId = GetUserId();
+
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.UserId == userId && ci.ProductId == product.Id);
+
+            if (cartItem != null)
             {
-                item.Quantity++;
+                cartItem.Quantity++;
             }
             else
             {
-                cart.Add(new CartItem
+                cartItem = new CartItem
                 {
                     ProductId = product.Id,
                     ProductName = product.Name,
                     Price = product.Price,
-                    Quantity = 1
-                });
+                    Quantity = 1,
+                    UserId = userId
+                };
+
+                await _context.CartItems.AddAsync(cartItem);
             }
-            SaveCart(cart);
+
+            await _context.SaveChangesAsync();
         }
 
-        public void RemoveFromCart(int productId)
+        public async Task RemoveFromCartAsync(int productId)
         {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(i => i.ProductId == productId);
-            if (item != null)
+            var userId = GetUserId();
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.UserId == userId && ci.ProductId == productId);
+
+            if (cartItem != null)
             {
-                cart.Remove(item);
-                SaveCart(cart);
+                _context.CartItems.Remove(cartItem);
+                await _context.SaveChangesAsync();
             }
         }
 
-        public void ClearCart()
+        public async Task ClearCartAsync()
         {
-            SaveCart(new List<CartItem>());
+            var userId = GetUserId();
+            var cartItems = _context.CartItems.Where(ci => ci.UserId == userId);
+            _context.CartItems.RemoveRange(cartItems);
+            await _context.SaveChangesAsync();
         }
     }
 }

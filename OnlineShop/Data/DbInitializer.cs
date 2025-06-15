@@ -1,4 +1,6 @@
-﻿using OnlineShop.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using OnlineShop.Models;
 
 namespace OnlineShop.Data
 {
@@ -56,7 +58,17 @@ namespace OnlineShop.Data
                     ImageUrl = "/images/t-shirt_MM.jpeg"
                 }
             };
+            var admin = new ApplicationUser
+            {
+                UserName = "admin@example.com",
+                Email = "admin@example.com",
+                DisplayName = "Админ",
+                Role = "admin",
+                EmailConfirmed = true
+            };
 
+            
+            context.Users.Add(admin);
             context.Products.AddRange(products);
             context.SaveChanges();
         }

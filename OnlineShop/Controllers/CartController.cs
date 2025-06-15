@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Data;
 using OnlineShop.Services;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace OnlineShop.Controllers
 {
+    [Authorize] // Корзина только для авторизованных
     public class CartController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,31 +18,31 @@ namespace OnlineShop.Controllers
             _cartService = cartService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var cart = _cartService.GetCart();
-            return View(cart);
+            var cartItems = await _cartService.GetCartItemsAsync();
+            return View(cartItems);
         }
 
-        public IActionResult Add(int id)
+        public async Task<IActionResult> Add(int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
-                _cartService.AddToCart(product);
+                await _cartService.AddToCartAsync(product);
             }
             return RedirectToAction("Index", "Products");
         }
 
-        public IActionResult Remove(int id)
+        public async Task<IActionResult> Remove(int id)
         {
-            _cartService.RemoveFromCart(id);
+            await _cartService.RemoveFromCartAsync(id);
             return RedirectToAction("Index");
         }
 
-        public IActionResult Clear()
+        public async Task<IActionResult> Clear()
         {
-            _cartService.ClearCart();
+            await _cartService.ClearCartAsync();
             return RedirectToAction("Index");
         }
     }
