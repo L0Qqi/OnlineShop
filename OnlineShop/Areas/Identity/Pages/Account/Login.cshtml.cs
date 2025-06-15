@@ -64,6 +64,7 @@ namespace OnlineShop.Areas.Identity.Pages.Account
                 }
 
                 ModelState.AddModelError(string.Empty, "Неверный email или пароль.");
+                HttpContext.Session.Clear();
             }
 
             return Page();

@@ -14,12 +14,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 
     options.SignIn.RequireConfirmedAccount = false;
 
-    options.Password.RequireDigit = false;              // не требовать цифру
-    options.Password.RequireLowercase = false;          // не требовать строчные буквы
-    options.Password.RequireUppercase = false;          // не требовать заглавные буквы
-    options.Password.RequireNonAlphanumeric = false;    // не требовать спецсимволы
-    options.Password.RequiredLength = 4;                // минимальная длина пароля
-    options.Password.RequiredUniqueChars = 0;           // не требовать уникальные символы
+    options.Password.RequireDigit = false;              
+    options.Password.RequireLowercase = false;          
+    options.Password.RequireUppercase = false;          
+    options.Password.RequireNonAlphanumeric = false;    
+    options.Password.RequiredLength = 4;                
+    options.Password.RequiredUniqueChars = 0;      
 
 })
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -59,8 +59,8 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
-    context.Database.Migrate(); // применить миграции, если нужно
-    DbInitializer.Seed(context); // вызываем метод для заполнения товарами
+    context.Database.Migrate(); 
+    DbInitializer.Seed(context); 
 }
 
 app.Run();
