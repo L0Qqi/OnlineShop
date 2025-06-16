@@ -1,0 +1,38 @@
+﻿@model OnlineShop.Models.Product
+
+@{
+    ViewData["Title"] = "Редактировать товар";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Название</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Описание</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price" class="control-label">Цена</label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ImageUrl" class="control-label">Ссылка на изображение</label>
+        <input asp-for="ImageUrl" class="form-control" />
+        <span asp-validation-for="ImageUrl" class="text-danger" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+</form>

@@ -1,6 +1,21 @@
 ﻿@model List<OnlineShop.Models.Product>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 
-<h2>Каталог товаров</h2>
+@{
+    ViewData["Title"] = "Каталог товаров";
+    var user = await UserManager.GetUserAsync(User);
+    bool isAdmin = user?.Role == "admin";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (isAdmin)
+{
+    <a asp-action="Create" class="btn btn-success mb-4">
+        <i class="bi bi-plus-circle"></i> Добавить товар
+    </a>
+}
 
 <div class="row">
     @foreach (var product in Model)
@@ -15,10 +30,22 @@
 
                     <form asp-controller="Cart" asp-action="Add" method="get" class="mt-auto">
                         <input type="hidden" name="id" value="@product.Id" />
-                        <button type="submit" class="btn btn-outline-primary w-100">
+                        <button type="submit" class="btn btn-outline-primary w-100 mb-2">
                             <i class="bi bi-cart-plus"></i> Добавить в корзину
                         </button>
                     </form>
+
+                    @if (isAdmin)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-primary w-45">
+                                <i class="bi bi-pencil"></i> Редактировать
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-danger w-45">
+                                <i class="bi bi-trash"></i> Удалить
+                            </a>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
